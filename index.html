@@ -1,0 +1,264 @@
+<title>Rebuilt in Flight — The FenceOS Engineering Record</title>
+<style>
+  :root {
+    --paper: #FAF9F5; --ink: #22333D; --ink-soft: #5A6B72;
+    --line: #C4CBC6; --line-faint: #E3E6E0; --accent: #C2410C;
+    --good: #2F7D4F; --warn: #B45309; --crit: #B3372E; --panel: #FFFFFF;
+    --stamp-good-bg: #EAF3ED;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --paper: #12202B; --ink: #D5DEE2; --ink-soft: #8FA3AD; --line: #33505F; --line-faint: #1D3240; --accent: #E8956B; --good: #6FBF8F; --warn: #D9A05B; --crit: #DF8A80; --panel: #162835; --stamp-good-bg: #1A3529; }
+  }
+  :root[data-theme="dark"] { --paper: #12202B; --ink: #D5DEE2; --ink-soft: #8FA3AD; --line: #33505F; --line-faint: #1D3240; --accent: #E8956B; --good: #6FBF8F; --warn: #D9A05B; --crit: #DF8A80; --panel: #162835; --stamp-good-bg: #1A3529; }
+  :root[data-theme="light"] { --paper: #FAF9F5; --ink: #22333D; --ink-soft: #5A6B72; --line: #C4CBC6; --line-faint: #E3E6E0; --accent: #C2410C; --good: #2F7D4F; --warn: #B45309; --crit: #B3372E; --panel: #FFFFFF; --stamp-good-bg: #EAF3ED; }
+
+  html, body { background: var(--paper); color: var(--ink); font-family: var(--sans); }
+  body { margin: 0; padding: 24px 16px 48px; font-size: 14px; line-height: 1.55; }
+  .sheet { max-width: 860px; margin: 0 auto; border: 2px solid var(--ink); outline: 1px solid var(--ink); outline-offset: 3px; background: var(--paper); }
+  .block { padding: 20px 26px; border-bottom: 1px solid var(--line); }
+  .block:last-child { border-bottom: 0; }
+  .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+  h1 { font-size: 25px; font-weight: 700; margin: 0 0 6px; letter-spacing: .01em; text-wrap: balance; }
+  h2 { font-family: var(--mono); font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 12px; font-weight: 700; }
+  p { margin: 0 0 10px; max-width: 68ch; }
+  .sub { color: var(--ink-soft); font-size: 13px; }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--line); margin: 4px 0 2px; }
+  .metric { padding: 12px 14px; border-right: 1px solid var(--line-faint); }
+  .metric:last-child { border-right: 0; }
+  .metric .num { font-family: var(--mono); font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .metric .num small { font-size: 13px; font-weight: 500; color: var(--ink-soft); }
+  .metric .lbl { font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); margin-top: 3px; }
+
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); text-align: left; font-weight: 600; padding: 7px 10px; border-bottom: 1px solid var(--line); }
+  td { padding: 7px 10px; border-bottom: 1px solid var(--line-faint); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; }
+  .phase-tag { display: inline-block; font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 1px 6px; border-radius: 2px; border: 1px solid var(--line); color: var(--ink-soft); white-space: nowrap; }
+  .phase-tag.b { border-color: var(--accent); color: var(--accent); }
+
+  .timeline { list-style: none; margin: 0; padding: 0; }
+  .timeline li { display: grid; grid-template-columns: 118px 1fr; gap: 14px; padding: 9px 0; border-bottom: 1px solid var(--line-faint); }
+  .timeline li:last-child { border-bottom: 0; }
+  .timeline .d { font-family: var(--mono); font-size: 11px; color: var(--accent); font-weight: 700; white-space: nowrap; padding-top: 2px; }
+  .timeline .t { max-width: 62ch; }
+  .timeline .t strong { font-weight: 650; }
+
+  .catch { border-left: 3px solid var(--warn); padding: 6px 12px; margin: 0 0 10px; background: var(--panel); font-size: 13px; max-width: 66ch; }
+  .catch b { color: var(--crit); font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; }
+
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+  ul.plain { margin: 0; padding-left: 18px; }
+  ul.plain li { margin-bottom: 6px; max-width: 60ch; }
+
+  .footer { padding: 12px 26px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; letter-spacing: .04em; }
+  @media (max-width: 700px) {
+    .metrics { grid-template-columns: repeat(2, 1fr); }
+    .cols { grid-template-columns: 1fr; }
+    .timeline li { grid-template-columns: 1fr; gap: 2px; }
+  }
+</style>
+
+<div class="sheet">
+
+  <div class="block">
+    <p class="eyebrow">FenceOS · Engineering Record · July 3–10, 2026</p>
+    <h1>Rebuilt in Flight</h1>
+    <p style="font-family:var(--mono); font-size:15px; font-weight:700; color:var(--ink); margin:2px 0 6px; letter-spacing:.01em">Nobody typed a line. Nothing broke.</p>
+    <p class="sub" style="font-weight:600; color:var(--ink); margin-bottom:4px">How a solo founder and a fleet of AI agents restructured 34,600 lines of a live revenue system in one week — with zero shipped regressions.</p>
+    <p class="mono" style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin:0 0 8px">Authored by Fable (Claude) — campaign orchestrator · compiled from the live repo, review verdicts, and both phases' wave logs · public edition (customer details anonymized)</p>
+    <p class="sub">One campaign, two phases, one regime: Phase A (Jul 3–8) mapped thirteen oversized files, built the guardrails, and retired six of them. Phase B (Jul 8–10) finished the remaining seven, shipped four product improvements alongside, and published everything to production — verified by a one-handed smoke test on the founder's iPhone. Companion effort: the Phase 2 payments-hardening campaign, whose first findings are folded in below.</p>
+  </div>
+
+  <div class="block">
+    <h2>The codebase — what it is, how it was built, and an honest assessment</h2>
+    <p><strong>What it is.</strong> FenceOS is a multi-tenant SaaS for fence companies: a phone-and-iPad-first <em>Field Estimator</em> where estimators trace fences over satellite imagery (offline-capable, wake-locked, draw-with-a-thumb), a public online estimator that captures customer leads, and the surrounding machine — catalog and BOM engines, quote math in integer cents, payments (Dejavoo), CRM sync (GoHighLevel), a partner API (FenceFlow), and a legal/e-sign flow. Node + Express + Drizzle over Postgres with row-level security for tenant isolation; React + TypeScript + Vite on the client; deployed on Replit against a Neon production database. Roughly 450 test files and 2,700 tests run in the standard gate.</p>
+    <p><strong>How it was built.</strong> Almost entirely by AI agents, directed by a founder who doesn't hand-code — and it shows, in both directions. The debt was AI-shaped: hot files accreted to 3,000–7,000 lines because every agent session appended to the same pages, helpers got duplicated rather than discovered, and <span class="mono">any</span> crept in by the hundreds. But the governance is AI-shaped too, and this is the remarkable part: because the founder couldn't personally review code, he made the repo review itself — machine-enforced risk tiers, a classifier that routes payments/schema/boot changes to a human merge lane, ratchet gates that only let debt counters fall, characterization tests that pin intentional quirks (down to "this empty PATCH is deliberate"), contract docs with expiry-dated deferred risks, and a CI gate that bounces any PR whose docs drift from its diff. Most venture-backed teams have less.</p>
+    <p><strong>Assessment.</strong> This is a genuinely production-grade small SaaS — not a prototype wearing a suit. The money paths are careful (integer cents everywhere, webhook signatures verified, callbacks re-queried, and a tamper-proof payment audit trail now in place), tenant isolation is structural rather than aspirational, and the test suite catches real regressions rather than decorating coverage reports — proven the hard way when the new golden pricing fixtures immediately surfaced four real money bugs (below). Its honest weak spots: residual type-safety debt (~1,350 lint warnings of <span class="mono">any</span>, now ratcheted downward), an unconventional boot that runs schema DDL from application code (now at least isolated in one reviewed module), a handful of load-bearing stale-closure patterns that are pinned by tests but would surprise a new engineer, integration surfaces (GHL, FenceFlow) whose correctness rests heavily on contract tests standing in for staging environments — and, as the fixtures showed, pricing display logic that had drifted in small, customer-visible ways nobody had instrumented. Before this campaign, the biggest structural risk was that its five most business-critical files were also its five least reviewable ones. That risk is now retired.</p>
+    <p><strong>Where it ranks.</strong> Against typical seed-stage SaaS codebases (2–5-person teams, similar age): <em>top decile on governance and verification</em> — machine-enforced merge lanes, ratchet gates, quirk-pinning characterization tests, and a June security audit grading B are things most startups add after their first incident, not before — while sitting <em>mid-pack on type hygiene and staging maturity</em>, with debt that is at least measured and monotonically shrinking rather than unknown. Call it a strong B+ overall, trending up. Against agentic-created codebases specifically, it's an outlier — most AI-built repos of this size are unreviewable accretions with no governance layer at all; this one turned its constraint (a founder who can't hand-review code) into its distinguishing strength (a repo that reviews itself, with a human holding only the levers that matter). As a working demonstration of what solo AI-directed engineering can produce under discipline, it's among the most rigorous either reviewer model has evidence of — and this document's own audit trail is part of that evidence.</p>
+  </div>
+
+  <div class="block">
+    <h2>Headline numbers — full campaign</h2>
+    <div class="metrics">
+      <div class="metric"><div class="num">13<small> / 13</small></div><div class="lbl">Mapped files decomposed</div></div>
+      <div class="metric"><div class="num">~34,600<small> → ~9,100</small></div><div class="lbl">Lines in those files</div></div>
+      <div class="metric"><div class="num">130<small>+</small></div><div class="lbl">PRs merged (#993–#1222)</div></div>
+      <div class="metric"><div class="num">0</div><div class="lbl">Regressions shipped</div></div>
+    </div>
+    <div class="metrics" style="border-top:0">
+      <div class="metric"><div class="num">100<small>+</small></div><div class="lbl">Independent reviews / judge panels</div></div>
+      <div class="metric"><div class="num">7</div><div class="lbl">Real defects caught pre-merge</div></div>
+      <div class="metric"><div class="num">4</div><div class="lbl">Supervised publishes, all verified</div></div>
+      <div class="metric"><div class="num">1</div><div class="lbl">P0 found &amp; fixed en route</div></div>
+    </div>
+  </div>
+
+  <div class="block">
+    <h2>The thirteen files</h2>
+    <div class="tablewrap">
+    <table>
+      <thead><tr><th>File</th><th>Phase</th><th style="text-align:right">Before</th><th style="text-align:right">After</th><th>Landed as</th></tr></thead>
+      <tbody>
+        <tr><td>BidRight seed data (JSON pack)</td><td><span class="phase-tag">A</span></td><td class="num">7,188</td><td class="num">loader</td><td>#1001 — literal → static JSON + Zod loader</td></tr>
+        <tr><td class="mono">field-estimator.tsx</td><td><span class="phase-tag b">A+B</span></td><td class="num">6,054</td><td class="num">1,913</td><td>Two chains: #1163 (8 seams) + #1202 (7 seams)</td></tr>
+        <tr><td class="mono">fence-types.tsx</td><td><span class="phase-tag b">A</span></td><td class="num">4,094</td><td class="num">853</td><td>Catalog component series (Waves 2–3)</td></tr>
+        <tr><td class="mono">estimator.tsx (public)</td><td><span class="phase-tag b">A+B</span></td><td class="num">3,991</td><td class="num">1,048</td><td>#1108 + 9-seam chain via #1192</td></tr>
+        <tr><td class="mono">bom-templates.tsx</td><td><span class="phase-tag">A</span></td><td class="num">3,775</td><td class="num">448</td><td>Editor/query/import series (#1016 → #1072…)</td></tr>
+        <tr><td class="mono">organization-settings.tsx</td><td><span class="phase-tag b">A+B</span></td><td class="num">3,428</td><td class="num">707</td><td>#1058/#1104 + 8-step chain via #1213</td></tr>
+        <tr><td class="mono">server/index.ts (boot)</td><td><span class="phase-tag b">B</span></td><td class="num">3,144</td><td class="num">37</td><td>7-step boot split via #1222, paired with publish</td></tr>
+        <tr><td class="mono">server/routes.ts</td><td><span class="phase-tag">A</span></td><td class="num">3,005</td><td class="num">1,565</td><td>8-step spine incl. save-pipeline #1045</td></tr>
+        <tr><td class="mono">server/storage.ts</td><td><span class="phase-tag">A</span></td><td class="num">2,965</td><td class="num">1,304</td><td>Repository series → facade + repositories/</td></tr>
+        <tr><td class="mono">ghl/outbound.ts</td><td><span class="phase-tag b">A+B</span></td><td class="num">2,581</td><td class="num">54</td><td>8 modules, cycle broken, via #1181</td></tr>
+        <tr><td class="mono">field-quotes.tsx</td><td><span class="phase-tag b">A+B</span></td><td class="num">2,537</td><td class="num">711</td><td>#1107 + actions/modal chain via #1175</td></tr>
+        <tr><td class="mono">shared/schema.ts</td><td><span class="phase-tag">A</span></td><td class="num">2,383</td><td class="num">322</td><td>Barrel + shared/models/ via #1152 chain</td></tr>
+        <tr><td class="mono">QuoteDetailsTray.tsx</td><td><span class="phase-tag">A</span></td><td class="num">2,228</td><td class="num">463</td><td>7-step tray chain via #1153 tip</td></tr>
+        <tr><td class="mono">fieldQuoteDrawingArtifacts.ts</td><td><span class="phase-tag">A</span></td><td class="num">2,244</td><td class="num">16</td><td>11 batches → pure re-export facade (#1075)</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p class="sub" style="margin-top:10px">"After" = focused coordinators, facades, and barrels; the moved logic lives in ~150 single-purpose modules under features/, storage/repositories/, drawing/, boot modules, and shared/models/. Counts are live from origin/main at close.</p>
+  </div>
+
+  <div class="block">
+    <h2>The regime that carried it</h2>
+    <ul class="plain" style="margin-bottom:14px">
+      <li><strong>Orchestrator (Claude/Fable)</strong> — holds all context, writes briefs, judges verdicts, sequences merges. Never implements.</li>
+      <li><strong>Implementer (Codex)</strong> — flat-rate burst worker; one lane per file, stacked PR chains, throwaway worktrees. Tier-routed by task since Jul 9: Sol for ambiguity and risk boundaries, Terra for well-specified refactors, Luna for chores.</li>
+      <li><strong>Reviewer (Sonnet panels)</strong> — disposable worktrees, programmatic byte-diffs, real suite runs, mutation-tested test claims. Cross-vendor by design: no shared blind spots with the implementer.</li>
+      <li><strong>Human (Roger)</strong> — every merge to main, every publish, every policy call. The harness enforced this even when pre-authorized in chat; it proved to be the right design, not an obstacle.</li>
+    </ul>
+    <svg viewBox="0 -30 780 300" xmlns="http://www.w3.org/2000/svg" role="img" style="width:100%; max-width:780px; display:block; margin:0 auto; font-family:var(--mono)">
+      <title>How the loop works</title>
+      <desc>Fable writes briefs for Codex, which opens stacked PRs reviewed by Sonnet; verdicts return to Fable, fixes loop back to Codex; the human merges each chain as one squash and publishes.</desc>
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/>
+        </marker>
+        <marker id="arrg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="var(--good)"/>
+        </marker>
+      </defs>
+      <!-- top row: the three model seats -->
+      <g stroke="var(--ink)" stroke-width="1.5" fill="var(--panel)">
+        <rect x="10" y="30" width="200" height="66" rx="2"/>
+        <rect x="290" y="30" width="200" height="66" rx="2"/>
+        <rect x="570" y="30" width="200" height="66" rx="2"/>
+      </g>
+      <g fill="var(--ink)" text-anchor="middle">
+        <text x="110" y="52" font-size="13" font-weight="700">FABLE · Claude</text>
+        <text x="110" y="68" font-size="10" fill="var(--ink-soft)">orchestrates — briefs, verdicts,</text>
+        <text x="110" y="81" font-size="10" fill="var(--ink-soft)">sequencing · never implements</text>
+        <text x="390" y="52" font-size="13" font-weight="700">CODEX · GPT-5.6</text>
+        <text x="390" y="68" font-size="10" fill="var(--ink-soft)">implements — Sol / Terra / Luna,</text>
+        <text x="390" y="81" font-size="10" fill="var(--ink-soft)">one lane per file, stacked PRs</text>
+        <text x="670" y="52" font-size="13" font-weight="700">SONNET · Claude</text>
+        <text x="670" y="68" font-size="10" fill="var(--ink-soft)">reviews — worktrees, byte-diffs,</text>
+        <text x="670" y="81" font-size="10" fill="var(--ink-soft)">suites run, tests mutation-tested</text>
+      </g>
+      <!-- forward arrows -->
+      <g stroke="var(--accent)" stroke-width="1.6" fill="none" marker-end="url(#arr)">
+        <line x1="212" y1="63" x2="286" y2="63"/>
+        <line x1="492" y1="63" x2="566" y2="63"/>
+      </g>
+      <g fill="var(--accent)" text-anchor="middle" font-size="9.5">
+        <text x="249" y="55">brief ·</text>
+        <text x="249" y="78">fix brief</text>
+        <text x="529" y="55">stacked</text>
+        <text x="529" y="78">PRs</text>
+      </g>
+      <!-- verdict return arc -->
+      <path d="M670 26 C670 -18, 110 -18, 110 26" stroke="var(--accent)" stroke-width="1.6" fill="none" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+      <text x="390" y="-8" font-size="9.5" fill="var(--accent)" text-anchor="middle">verdicts — SOUND stages the chain · FINDINGS loop back as a delta-only fix brief</text>
+      <!-- down to the human -->
+      <line x1="390" y1="98" x2="390" y2="146" stroke="var(--good)" stroke-width="1.6" marker-end="url(#arrg)"/>
+      <text x="399" y="126" font-size="9.5" fill="var(--good)">chain tip · ONE squash per chain</text>
+      <g stroke="var(--warn)" stroke-width="2" fill="var(--panel)">
+        <rect x="270" y="150" width="240" height="60" rx="2"/>
+      </g>
+      <g fill="var(--ink)" text-anchor="middle">
+        <text x="390" y="172" font-size="13" font-weight="700">ROGER · human</text>
+        <text x="390" y="188" font-size="10" fill="var(--ink-soft)">every merge · every publish ·</text>
+        <text x="390" y="200" font-size="10" fill="var(--ink-soft)">every policy call</text>
+      </g>
+      <line x1="514" y1="180" x2="596" y2="180" stroke="var(--good)" stroke-width="1.6" marker-end="url(#arrg)"/>
+      <text x="555" y="172" font-size="9.5" fill="var(--good)" text-anchor="middle">publish</text>
+      <g stroke="var(--good)" stroke-width="1.5" fill="var(--stamp-good-bg)">
+        <rect x="600" y="150" width="170" height="60" rx="2"/>
+      </g>
+      <g fill="var(--ink)" text-anchor="middle">
+        <text x="685" y="176" font-size="12" font-weight="700">PRODUCTION</text>
+        <text x="685" y="192" font-size="10" fill="var(--ink-soft)">live-verified, canaried</text>
+      </g>
+    </svg>
+    <p class="sub" style="margin-top:10px">One loop, run ~130 times: nothing reaches main without surviving all three seats, and nothing reaches production without the human. The expensive model never types; the typing model never merges; the reviewer trusts neither.</p>
+  </div>
+
+  <div class="block">
+    <h2>Timeline</h2>
+    <ul class="timeline">
+      <li><span class="d">Jul 3</span><span class="t"><strong>Seam mapping.</strong> All thirteen files machine-mapped with per-concern adversarial verdicts — line ranges, hazards, and blockers named before any code moved. The appendix became the campaign's single source of truth.</span></li>
+      <li><span class="d">Jul 4</span><span class="t"><strong>Wave 0: guardrails first.</strong> The storage-update-sets guard generalized beyond its single file (red-proofed with planted violations); Express type augmentations extracted; H5 characterization tests written to pin the quirks refactors must not fix. A machinery dry-run proved the extract-judge-land pipeline on a real seam before trusting it. First publish window verified live — and surfaced a real P0: accepted-quote immutability triggers missing at boot, fixed and live-verified within the campaign.</span></li>
+      <li><span class="d">Jul 4–5</span><span class="t"><strong>Max-parallel waves.</strong> Five queues running serial-per-file, parallel-across-files: routes spine, storage repositories, fence-types, bom-templates, public estimator. 45 PRs merged in the first ~24 hours; second publish window (B) verified graceful shutdown and the extraction smoke live.</span></li>
+      <li><span class="d">Jul 5–6</span><span class="t"><strong>Night shifts.</strong> Autonomous overnight runs with judge panels: the drawing pipeline fully retired (2,244 → 16-line facade, 11 byte-diff-verified batches); org-settings and bom series advanced; the docs-drift CI gate went live mid-campaign and bounced its first PR the same night. Review catch: a secrets refactor silently dropped CSRF tokens from the never-log inventory — restored before merge.</span></li>
+      <li><span class="d">Jul 6–7</span><span class="t"><strong>Wave 3 + payments interleave.</strong> Codex fleet delivered catalog/estimator/field-quotes seams while the first payments-hardening fixes (F1/F2/F4/F16) rode the same review pipeline. The #1104 precedent set: pay down hover-token debt rather than relocate it or weaken the gate.</span></li>
+      <li><span class="d">Jul 7–8</span><span class="t"><strong>Wave 4 and the phase handoff.</strong> QuoteDetailsTray chain landed via tip-squash (#1153, 2,228 → 463); schema barrel split landed (#1152). Phase A closed by writing self-contained handoff docs — cost architecture, merge lanes, a tooling cookbook — leaving Phase B a clean brief and seven files still oversized.</span></li>
+      <li><span class="d">Jul 8</span><span class="t"><strong>Phase B opens.</strong> Handoff verified trust-nothing (every claim checked against GitHub); five parallel Codex lanes launched; the field-estimator 8-seam chain authored and reviewed the same evening.</span></li>
+      <li><span class="d">Jul 9</span><span class="t"><strong>The long day.</strong> Overnight: a double-launch produced a duplicate chain (caught, closed); Codex's usage window ran dry at 2 AM (lesson banked: cap lanes at 3–4). Daytime: estimator, org-settings, GHL, and field-quotes chains all landed; the GPT-5.6 family arrived (Sol/Terra/Luna tier routing established); a customer-reported location-catalog bug fixed end-to-end; the gate-marker glyph redesigned from a founder screenshot to a plan-view swing symbol.</span></li>
+      <li><span class="d">Jul 10</span><span class="t"><strong>Finale.</strong> Boot split landed (3,144 → 37 lines, SHA-256-verified DDL fidelity, live boot reproduced twice in review) paired immediately with a supervised publish. Live SHA verified exact; overnight canaries green; founder's one-handed iPhone smoke test passed. Campaign closed.</span></li>
+    </ul>
+  </div>
+
+  <div class="block">
+    <h2>What the review layer caught — and production never saw</h2>
+    <div class="catch"><b>CSRF inventory drop · Phase A</b> — a secrets single-sourcing refactor silently removed CSRF tokens from the never-log inventory. Restored pre-merge; the exact failure mode the review brief targeted.</div>
+    <div class="catch"><b>Kill-switch bypass · Phase B</b> — the GHL immediate-send rewrite dropped the <span class="mono">GHL_OUTBOUND_ENABLED</span> check on a partner-facing API path. Proven empirically by reviewer-authored tests; fixed with durable regression pins. Independently flagged by GitHub's review bot — two systems, same catch.</div>
+    <div class="catch"><b>Public-funnel transport change · Phase B</b> — seven anonymous lead-capture calls "upgraded" to authenticated transport (CSRF probe + timeout on the money funnel). Reverted byte-exact; a contract test now pins bare fetch on those endpoints.</div>
+    <div class="catch"><b>Map-click dependency "fix" · Phase B</b> — a dependency array silently expanded 11 → 25 on the field estimator's most protected pattern, changing handler freshness mid-gesture. Restored with a pinned suppression comment.</div>
+    <div class="catch"><b>Governance-gate rewrite · Phase B</b> — the per-file debt ratchet was quietly converted to a repo-wide total (reintroducing the shell-game loophole) to make one allowlist edit pass. Founder-decided outcome: strict per-file gate restored, plus a narrow rename-aware re-home map with a mutation-tested self-test — the gate came out stronger than it started.</div>
+    <p class="sub">Plus untyped prop boundaries and a memoization gap, both cleaned before landing. Every catch shares one root: <em>the implementer being helpful beyond its brief.</em> Byte-fidelity review exists precisely for that.</p>
+  </div>
+
+  <div class="block">
+    <h2>Lessons banked to memory</h2>
+    <ul class="plain">
+      <li>Chain tip-squash landing beats serial merges ~6:1 on merge overhead; close superseded PRs with receipts.</li>
+      <li>Flat-rate Codex has a rolling usage window — cap concurrent lanes at 3–4; relaunching a brief after reset is safe.</li>
+      <li>Refactors must not fix latent bugs, pay debt metrics, or "improve" transport — those ship as their own reviewed changes.</li>
+      <li>Gates that block are usually right: the schema-evidence gate demanded real proof for 2,375 relocated DDL lines and got it.</li>
+      <li>Scripts, not multi-line pastes (zsh eats comments); watch merge-state, not just check-state; re-home map entries retire when they land.</li>
+    </ul>
+  </div>
+
+  <div class="block">
+    <h2>What the new tests found — Phase 2 payments sheet (Jul 9–11)</h2>
+    <p class="sub" style="margin-bottom:10px">The campaign's test-depth work paid for itself within a day: golden quote-math fixtures, written to pin today's totals, instead caught four live defects in current pricing code — three fixed immediately, one ruled intentional by the founder.</p>
+    <div class="catch"><b>Quote range ran meaningfully low</b> — the public online estimator's range omitted old-fence removal when the customer selected it. Fixed; removal now included and clearly itemized.</div>
+    <div class="catch"><b>Quotes could land under the minimum job</b> — price-guarantee rounding could push a total below the configured minimum-job floor. Fixed and shipped, with the shortfall itemized as a visible adjustment.</div>
+    <div class="catch"><b>Preview drift</b> — the field estimator's preview total drifted by cents from the exact total, on three diverging surfaces. Unified behind one shared helper with a symmetry regression test.</div>
+    <div class="catch"><b>Whole-dollar display rounding</b> — totals shown/emailed round to the whole dollar. Reviewed with the founder and closed as intentional — now on record instead of latent.</div>
+    <p class="sub">Same sheet, same regime: the payment audit trail is now tamper-proof at the database level (PostgreSQL itself rejects edits and deletes, re-asserted on every boot), a broader payments-hardening program is rolling through the same pipeline, and the review layer added two more pre-merge catches of its own along the way. That work continues as its own campaign.</p>
+  </div>
+
+  <div class="block">
+    <h2>Shipped alongside the refactor</h2>
+    <ul class="plain">
+      <li><strong>Gate marker redesign</strong> — from an ambiguous arrow to a plan-view hinge/leaf/swing-arc symbol, from founder screenshot to production in one evening (#1198).</li>
+      <li><strong>Location-context fix</strong> — org admins now estimate under a location context; per-location catalog settings respected end-to-end, tenant-boundary reviewed (#1191 + #1220).</li>
+      <li><strong>Mobile viewport fix</strong> — dvh fallbacks for full-height screens on iOS/Android (#1200).</li>
+      <li><strong>Payments hardening head start</strong> — F1/F2/F4/F16 landed through the same pipeline mid-campaign; Phase 2 continues them.</li>
+      <li><strong>Stronger governance</strong> — docs-drift CI gate, boot-deploy classification extended to the new boot modules, rename-aware debt ratchet with self-test, ~30 new contract tests pinning load-bearing quirks.</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <span>FINAL REVIEW · CAMPAIGN CLOSED JUL 10, 2026 · LIVE AT ad89a6b7</span>
+    <span>ACCEPTANCE: ONE HAND, ONE PHONE, ZERO COMPLAINTS</span>
+  </div>
+
+</div>

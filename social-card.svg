@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#FAF9F5"/>
+  <rect x="55" y="55" width="1090" height="520" fill="none" stroke="#22333D" stroke-width="4"/>
+  <rect x="64" y="64" width="1072" height="502" fill="none" stroke="#22333D" stroke-width="1"/>
+
+  <text x="110" y="130" fill="#C2410C" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" font-weight="700" letter-spacing="4">FENCEOS · ENGINEERING RECORD · JULY 3–10, 2026</text>
+  <text x="110" y="242" fill="#22333D" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="76" font-weight="750">Rebuilt in Flight</text>
+  <text x="110" y="304" fill="#22333D" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="28" font-weight="700">Nobody typed a line. Four publishes held.</text>
+
+  <line x1="110" y1="354" x2="1090" y2="354" stroke="#C4CBC6" stroke-width="2"/>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <text x="110" y="426" fill="#22333D" font-size="38" font-weight="700">34,600 → 9,100</text>
+    <text x="110" y="458" fill="#5A6B72" font-size="16" letter-spacing="2">LINES IN 13 OVERSIZED FILES</text>
+
+    <text x="500" y="426" fill="#22333D" font-size="38" font-weight="700">100+</text>
+    <text x="500" y="458" fill="#5A6B72" font-size="16" letter-spacing="2">INDEPENDENT REVIEWS</text>
+
+    <text x="805" y="426" fill="#22333D" font-size="38" font-weight="700">0</text>
+    <text x="805" y="458" fill="#5A6B72" font-size="16" letter-spacing="2">REGRESSIONS DETECTED</text>
+  </g>
+
+  <text x="110" y="526" fill="#5A6B72" font-family="-apple-system, BlinkMacSystemFont, Segoe UI, sans-serif" font-size="21">A solo founder, an AI implementation fleet, independent review, and human-controlled production.</text>
+</svg>

@@ -1,4 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Rebuilt in Flight — The FenceOS Engineering Record</title>
+<meta name="description" content="How a solo founder and a fleet of AI agents restructured 34,600 lines of a live revenue system in one week, with four supervised publishes and no regressions detected.">
+<meta name="theme-color" content="#FAF9F5" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12202B" media="(prefers-color-scheme: dark)">
+<link rel="canonical" href="https://rwetfc.github.io/rebuilt-in-flight/">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="FenceOS Engineering Record">
+<meta property="og:title" content="Rebuilt in Flight">
+<meta property="og:description" content="A documented operating system for AI-built software: 34,600 lines restructured, 100+ independent reviews, four supervised publishes, and no regressions detected.">
+<meta property="og:url" content="https://rwetfc.github.io/rebuilt-in-flight/">
+<meta property="og:image" content="https://rwetfc.github.io/rebuilt-in-flight/social-card.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Rebuilt in Flight — the FenceOS engineering record, July 3–10, 2026">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Rebuilt in Flight">
+<meta name="twitter:description" content="How a solo founder used a fleet of AI agents to restructure 34,600 lines of a live revenue system under human-controlled governance.">
+<meta name="twitter:image" content="https://rwetfc.github.io/rebuilt-in-flight/social-card.jpg">
+<meta name="twitter:image:alt" content="Rebuilt in Flight — the FenceOS engineering record, July 3–10, 2026">
 <style>
   :root {
     --paper: #FAF9F5; --ink: #22333D; --ink-soft: #5A6B72;
@@ -56,21 +83,33 @@
   ul.plain { margin: 0; padding-left: 18px; }
   ul.plain li { margin-bottom: 6px; max-width: 60ch; }
 
+  .cta { display: grid; grid-template-columns: 1fr auto; gap: 18px; align-items: center; }
+  .cta p { margin-bottom: 0; }
+  .cta-links { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .cta-link { display: inline-block; border: 1px solid var(--ink); padding: 8px 11px; color: var(--ink); text-decoration: none; font-family: var(--mono); font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+  .cta-link.primary { background: var(--ink); color: var(--paper); }
+  .cta-link:hover, .cta-link:focus-visible { border-color: var(--accent); color: var(--accent); }
+  .cta-link.primary:hover, .cta-link.primary:focus-visible { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+
   .footer { padding: 12px 26px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-soft); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; letter-spacing: .04em; }
   @media (max-width: 700px) {
     .metrics { grid-template-columns: repeat(2, 1fr); }
     .cols { grid-template-columns: 1fr; }
     .timeline li { grid-template-columns: 1fr; gap: 2px; }
+    .cta { grid-template-columns: 1fr; }
+    .cta-links { justify-content: flex-start; }
   }
 </style>
+</head>
+<body>
 
 <div class="sheet">
 
   <div class="block">
     <p class="eyebrow">FenceOS · Engineering Record · July 3–10, 2026</p>
     <h1>Rebuilt in Flight</h1>
-    <p style="font-family:var(--mono); font-size:15px; font-weight:700; color:var(--ink); margin:2px 0 6px; letter-spacing:.01em">Nobody typed a line. Nothing broke.</p>
-    <p class="sub" style="font-weight:600; color:var(--ink); margin-bottom:4px">How a solo founder and a fleet of AI agents restructured 34,600 lines of a live revenue system in one week — with zero shipped regressions.</p>
+    <p style="font-family:var(--mono); font-size:15px; font-weight:700; color:var(--ink); margin:2px 0 6px; letter-spacing:.01em">Nobody typed a line. Four publishes held.</p>
+    <p class="sub" style="font-weight:600; color:var(--ink); margin-bottom:4px">How a solo founder and a fleet of AI agents restructured 34,600 lines of a live revenue system in one week — with four supervised publishes and no regressions detected.</p>
     <p class="mono" style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); margin:0 0 8px">Authored by Fable (Claude) — campaign orchestrator · compiled from the live repo, review verdicts, and both phases' wave logs · public edition (customer details anonymized)</p>
     <p class="sub">One campaign, two phases, one regime: Phase A (Jul 3–8) mapped thirteen oversized files, built the guardrails, and retired six of them. Phase B (Jul 8–10) finished the remaining seven, shipped four product improvements alongside, and published everything to production — verified by a one-handed smoke test on the founder's iPhone. Companion effort: the Phase 2 payments-hardening campaign, whose first findings are folded in below.</p>
   </div>
@@ -89,7 +128,7 @@
       <div class="metric"><div class="num">13<small> / 13</small></div><div class="lbl">Mapped files decomposed</div></div>
       <div class="metric"><div class="num">~34,600<small> → ~9,100</small></div><div class="lbl">Lines in those files</div></div>
       <div class="metric"><div class="num">130<small>+</small></div><div class="lbl">PRs merged (#993–#1222)</div></div>
-      <div class="metric"><div class="num">0</div><div class="lbl">Regressions shipped</div></div>
+      <div class="metric"><div class="num">0</div><div class="lbl">Regressions detected post-publish</div></div>
     </div>
     <div class="metrics" style="border-top:0">
       <div class="metric"><div class="num">100<small>+</small></div><div class="lbl">Independent reviews / judge panels</div></div>
@@ -256,9 +295,23 @@
     </ul>
   </div>
 
+  <div class="block cta">
+    <div>
+      <h2>The proving ground</h2>
+      <p>FenceOS was the live system behind this record. Explore the product built for fence contractors, or follow the public engineering work as the operating model evolves.</p>
+    </div>
+    <div class="cta-links">
+      <a class="cta-link primary" href="https://fencingos.io/">Explore FenceOS</a>
+      <a class="cta-link" href="https://github.com/rwetfc">Follow the work</a>
+    </div>
+  </div>
+
   <div class="footer">
     <span>FINAL REVIEW · CAMPAIGN CLOSED JUL 10, 2026 · LIVE AT ad89a6b7</span>
     <span>ACCEPTANCE: ONE HAND, ONE PHONE, ZERO COMPLAINTS</span>
   </div>
 
 </div>
+
+</body>
+</html>
